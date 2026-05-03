@@ -147,7 +147,7 @@ export default function HelperWebScreen() {
   // Verify authentication token
   const verifyToken = async (token: string) => {
     try {
-      const response = await fetch(`${API_BASE}helpers/me`, {
+      const response = await fetch(apiUrl("helpers/me"), {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -182,7 +182,7 @@ export default function HelperWebScreen() {
   const fetchHelperData = async () => {
     if (!authToken) return;
     try {
-      const response = await fetch(`${API_BASE}helpers/me`, {
+      const response = await fetch(apiUrl("helpers/me"), {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -218,7 +218,7 @@ export default function HelperWebScreen() {
 
     try {
       console.log("[HelperWeb] 🗑️ Deleting account...");
-      const response = await fetch(`${API_BASE}helpers/delete-account`, {
+      const response = await fetch(apiUrl("helpers/delete-account"), {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -350,7 +350,7 @@ export default function HelperWebScreen() {
     }
 
     try {
-      const response = await fetch(`${API_BASE}helpers/signup`, {
+      const response = await fetch(apiUrl("helpers/signup"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -438,7 +438,7 @@ export default function HelperWebScreen() {
     }
 
     try {
-      const response = await fetch(`${API_BASE}helpers/login`, {
+      const response = await fetch(apiUrl("helpers/login"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -478,7 +478,7 @@ export default function HelperWebScreen() {
   const handleLogout = async () => {
     if (authToken) {
       try {
-        await fetch(`${API_BASE}helpers/logout`, {
+        await fetch(apiUrl("helpers/logout"), {
           method: "POST",
           headers: {
             Authorization: `Bearer ${authToken}`,
