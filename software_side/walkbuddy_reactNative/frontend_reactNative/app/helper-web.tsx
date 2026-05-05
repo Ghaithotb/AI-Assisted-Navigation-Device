@@ -218,12 +218,16 @@ export default function HelperWebScreen() {
 
     try {
       console.log("[HelperWeb] 🗑️ Deleting account...");
-      const response = await fetch(apiUrl("helpers/delete-account"), {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
+      if (!helperData?.id) {
+          throw new Error("Helper account details are missing.");
+        }
+
+        const response = await fetch(
+          apiUrl(`helpers/${helperData.id}?token=${encodeURIComponent(authToken)}`),
+          {
+            method: "DELETE",
+          }
+        );
 
       console.log("[HelperWeb] Delete account response:", response.status);
 
@@ -375,39 +379,49 @@ export default function HelperWebScreen() {
       }
 
       // Signup successful - show success message and redirect to login
-      const signupEmail = signupData.email;
+      const loginResponse = await fetch(apiUrl("helpers/login"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: signupData.email,
+        password: signupData.password,
+      }),
+    });
 
-      // Clear form
-      setSignupData({
-        name: "",
-        age: "",
-        email: "",
-        phone: "",
-        address: "",
-        emergency_contact_name: "",
-        emergency_contact_phone: "",
-        experience_level: "",
-        password: "",
-        confirmPassword: "",
-      });
-      setTermsAccepted(false);
+    const loginResult = await loginResponse.json();
 
-      // Show success message and switch to login
-      if (Platform.OS === "web" && typeof window !== "undefined") {
-        window.alert(
-          "Account created successfully! Please login with your credentials.",
-        );
-      } else {
-        Alert.alert(
-          "Success",
-          "Account created successfully! Please login with your credentials.",
-        );
-      }
+    if (!loginResponse.ok) {
+      throw new Error(
+        loginResult.detail || "Account created, but automatic login failed."
+      );
+    }
 
-      // Switch to login tab and pre-fill email
-      setShowSignup(false);
-      setLoginData({ email: signupEmail, password: "" });
-      setAuthError(null);
+    setAuthToken(loginResult.token);
+    setHelperName(loginResult.helper.name);
+    setHelperData(loginResult.helper);
+    setIsAuthenticated(true);
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("helper_auth_token", loginResult.token);
+      localStorage.setItem("helper_name", loginResult.helper.name);
+    }
+
+    setSignupData({
+      name: "",
+      age: "",
+      email: "",
+      phone: "",
+      address: "",
+      emergency_contact_name: "",
+      emergency_contact_phone: "",
+      experience_level: "",
+      password: "",
+      confirmPassword: "",
+    });
+
+    setTermsAccepted(false);
+    setShowSignup(false);
+    setAuthError(null);
     } catch (error: any) {
       console.error("[HelperWeb] Signup error:", error);
       const errorMessage = error.message || "Signup failed. Please try again.";
