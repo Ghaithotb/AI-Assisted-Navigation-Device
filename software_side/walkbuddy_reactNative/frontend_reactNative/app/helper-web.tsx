@@ -25,6 +25,9 @@ import {
 import { API_BASE } from "@/src/config";
 import { Ionicons } from "@expo/vector-icons";
 
+const apiUrl = (path: string) =>
+  `${API_BASE.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
+
 // Connection state machine
 type ConnectionState =
   | "idle"
